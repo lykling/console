@@ -5,11 +5,13 @@ import (
 	"strings"
 )
 
+// Console interface
 type Console interface {
 	Name() string
 	GetSignalChannel() chan int
 }
 
+// CommonConsole implement of Console
 type CommonConsole struct {
 	state         int
 	name          string
@@ -18,16 +20,17 @@ type CommonConsole struct {
 	commandMap    map[string]Command
 }
 
-const ()
-
+// Name return console name
 func (cc *CommonConsole) Name() string {
 	return cc.name
 }
 
+// GetSignalChannel return signal channel
 func (cc *CommonConsole) GetSignalChannel() chan int {
 	return cc.signalChannel
 }
 
+// Parse parse commandline
 func (cc *CommonConsole) Parse(line string) (command Command, args []string, err error) {
 	args, err = strings.Split(line, " "), nil
 	name := args[0]
@@ -40,6 +43,7 @@ func (cc *CommonConsole) Parse(line string) (command Command, args []string, err
 	return
 }
 
+// start start console
 func (cc *CommonConsole) start(in chan string, out chan string) {
 	cc.listening = true
 	cc.state = 1
@@ -71,6 +75,7 @@ func (cc *CommonConsole) start(in chan string, out chan string) {
 	}
 }
 
+// Listen start console
 func (cc *CommonConsole) Listen(in chan string, out chan string) {
 	if cc.listening {
 		return
@@ -78,12 +83,14 @@ func (cc *CommonConsole) Listen(in chan string, out chan string) {
 	go cc.start(in, out)
 }
 
+// AddCommand add command to console
 func (cc *CommonConsole) AddCommand(command Command) {
 	if command != nil {
 		cc.commandMap[command.Name()] = command
 	}
 }
 
+// Init initilize console
 func (cc *CommonConsole) init() {
 	command := NewCommonCommand("exit", nil, cc)
 	command.SetHandler(func(ch chan int, args ...string) {
@@ -92,6 +99,7 @@ func (cc *CommonConsole) init() {
 	cc.AddCommand(command)
 }
 
+// NewCommonConsole create instance of CommonConsole with name
 func NewCommonConsole(name string) (cc *CommonConsole) {
 	cc = &CommonConsole{}
 	cc.name = name
